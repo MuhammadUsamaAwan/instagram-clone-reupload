@@ -40,14 +40,9 @@ const DM = () => {
 
   useEffect(() => {
     getFollowing()
-    if (collectionName)
-      db.collection(collectionName).onSnapshot(snapshot =>
-        console.log(snapshot.docs.map(doc => doc.data()))
-      )
   }, [])
 
   useEffect(() => {
-    console.log(collectionName)
     if (collectionName) {
       const q = query(
         collection(db, collectionName),
