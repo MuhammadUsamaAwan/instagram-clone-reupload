@@ -57,8 +57,8 @@ const UserProfile = () => {
         })
       })
       setPosts(posts)
-      setPostsLoading(false)
     })
+    setPostsLoading(false)
   }
 
   const handleUnfollow = async () => {

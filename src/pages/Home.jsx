@@ -20,24 +20,26 @@ const Home = () => {
   const getData = async () => {
     onSnapshot(doc(db, 'users', auth.currentUser.uid), doc => {
       setCurrentUser(doc.data())
-      const postsRef = collection(db, 'posts')
-      const q = query(
-        postsRef,
-        where('userRef', 'in', doc.data().following),
-        limit(15)
-      )
-      onSnapshot(q, querySnapshot => {
-        const posts = []
-        querySnapshot.forEach(doc => {
-          posts.push({
-            id: doc.id,
-            data: doc.data(),
+      if (doc.data().following) {
+        const postsRef = collection(db, 'posts')
+        const q = query(
+          postsRef,
+          where('userRef', 'in', doc.data().following),
+          limit(15)
+        )
+        onSnapshot(q, querySnapshot => {
+          const posts = []
+          querySnapshot.forEach(doc => {
+            posts.push({
+              id: doc.id,
+              data: doc.data(),
+            })
           })
+          setPosts(posts)
         })
-        setPosts(posts)
-        setPostsLoading(false)
-      })
+      }
     })
+    setPostsLoading(false)
   }
 
   useEffect(() => {

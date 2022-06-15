@@ -14,20 +14,22 @@ const CommentsSection = ({ comments, setOpenPostModal, postId }) => {
   Modal.setAppElement(document.getElementById('root'))
 
   const getComments = async () => {
-    comments.forEach(async comment => {
-      const docRef = doc(db, 'users', comment.userRef)
-      const docSnap = await getDoc(docRef)
-      if (docSnap.exists())
-        setCommentsData(commentsData => [
-          ...commentsData,
-          {
-            comment: comment.comment,
-            userRef: comment.userRef,
-            userName: docSnap.data().userName,
-            photoURL: docSnap.data().photoURL,
-          },
-        ])
-    })
+    if (comments) {
+      comments.forEach(async comment => {
+        const docRef = doc(db, 'users', comment.userRef)
+        const docSnap = await getDoc(docRef)
+        if (docSnap.exists())
+          setCommentsData(commentsData => [
+            ...commentsData,
+            {
+              comment: comment.comment,
+              userRef: comment.userRef,
+              userName: docSnap.data().userName,
+              photoURL: docSnap.data().photoURL,
+            },
+          ])
+      })
+    }
   }
 
   const deleteComment = async () => {

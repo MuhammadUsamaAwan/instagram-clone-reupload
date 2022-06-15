@@ -46,8 +46,8 @@ const Profile = () => {
         })
       })
       setPosts(posts)
-      setPostsLoading(false)
     })
+    setPostsLoading(false)
   }
 
   useEffect(() => {
