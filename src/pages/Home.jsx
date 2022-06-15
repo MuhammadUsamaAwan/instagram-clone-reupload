@@ -2,65 +2,62 @@ import { useEffect, useState } from 'react'
 import { auth, db } from '../config/firebase.config'
 import {
   collection,
-  getDocs,
   query,
   where,
-  getDoc,
   doc,
+  onSnapshot,
+  limit,
 } from 'firebase/firestore'
 import { Link } from 'react-router-dom'
 import HomePost from './components/home/HomePost'
 import HomeFooter from './components/home/HomeFooter'
-import seen from '../assets/images/seen.png'
 
 const Home = () => {
   const [currentUser, setCurrentUser] = useState({})
   const [posts, setPosts] = useState([])
+  const [postsLoading, setPostsLoading] = useState(true)
 
   const getData = async () => {
-    const docRef = doc(db, 'users', auth.currentUser.uid)
-    const docSnap = await getDoc(docRef)
-    if (docSnap.exists()) {
-      setCurrentUser(docSnap.data())
-      if (docSnap.data().following) {
-        const postsRef = collection(db, 'posts')
-        const q = query(
-          postsRef,
-          where('userRef', 'in', docSnap.data().following)
-        )
-        const querySnap = await getDocs(q)
+    onSnapshot(doc(db, 'users', auth.currentUser.uid), doc => {
+      setCurrentUser(doc.data())
+      const postsRef = collection(db, 'posts')
+      const q = query(
+        postsRef,
+        where('userRef', 'in', doc.data().following),
+        limit(15)
+      )
+      onSnapshot(q, querySnapshot => {
         const posts = []
-        querySnap.forEach(doc => {
-          return posts.push({
+        querySnapshot.forEach(doc => {
+          posts.push({
             id: doc.id,
             data: doc.data(),
           })
         })
         setPosts(posts)
-      }
-    }
+        setPostsLoading(false)
+      })
+    })
   }
 
   useEffect(() => {
     getData()
-  }, [])
+  }, [onSnapshot])
+
+  if (postsLoading) return <></>
 
   return (
     <section className='grid place-content-center'>
       <div className='mt-[1.875rem] flex items-start w-full md:w-[470px] lg:w-[821px]'>
         <div className='flex-[3] mr-0 lg:mr-2 space-y-3'>
           {posts.map(post => (
-            <HomePost key={post.id} id={post.id} data={post.data} />
+            <HomePost
+              key={post.id}
+              id={post.id}
+              postData={post.data}
+              userData={currentUser}
+            />
           ))}
-          <div
-            className='flex flex-col items-center space-y-3'
-            style={{ margin: '3rem 0' }}
-          >
-            <img src={seen} alt='seen' />
-            <p>
-              You've seen all posts. Follow more accounts to see more posts!
-            </p>
-          </div>
         </div>
         <div className='md:hidden hidden flex-[2] lg:block'>
           <Link to='/userprofile' className='space-x-4 items-center flex'>

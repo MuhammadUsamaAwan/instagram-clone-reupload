@@ -18,23 +18,21 @@ import moment from 'moment'
 import Post from '../../../components/Post'
 import Likes from '../../../components/Likes'
 
-const HomePost = ({ id, data }) => {
+const HomePost = ({ id, postData }) => {
+  const [userData, setUserData] = useState({})
+  const [userDataLoading, setUserDataLoading] = useState(true)
   const [submitLikeLoading, setSubmitLikeLoading] = useState(false)
   const [comment, setComment] = useState('')
   const [submitCommentLoading, setSubmitCommentLoading] = useState(false)
   const [submitCommentDisabled, setSubmitCommentDisabled] = useState(true)
-  const [postData, setPostData] = useState(data)
-  const [userData, setUserData] = useState()
   const [openPostModal, setOpenPostModal] = useState(false)
   const [openLikesModal, setOpenLikesModal] = useState(false)
 
-  const getPost = async () => {
-    let docRef = doc(db, 'posts', id)
-    let docSnap = await getDoc(docRef)
-    if (docSnap.exists()) setPostData(docSnap.data())
-    docRef = doc(db, 'users', docSnap.data().userRef)
-    docSnap = await getDoc(docRef)
+  const getUserData = async () => {
+    const docRef = doc(db, 'users', postData.userRef)
+    const docSnap = await getDoc(docRef)
     if (docSnap.exists()) setUserData(docSnap.data())
+    setUserDataLoading(false)
   }
 
   const handleLike = async () => {
@@ -43,7 +41,6 @@ const HomePost = ({ id, data }) => {
       likes: arrayUnion(auth.currentUser.uid),
     })
     setSubmitLikeLoading(false)
-    getPost()
   }
 
   const handleUnlike = async () => {
@@ -52,7 +49,6 @@ const HomePost = ({ id, data }) => {
       likes: arrayRemove(auth.currentUser.uid),
     })
     setSubmitLikeLoading(false)
-    getPost()
   }
 
   const handleComment = async e => {
@@ -77,13 +73,15 @@ const HomePost = ({ id, data }) => {
   )
 
   useEffect(() => {
-    if (!openPostModal) getPost()
-  }, [openPostModal])
+    getUserData()
+  }, [])
 
   useEffect(() => {
     if (comment) setSubmitCommentDisabled(false)
     else setSubmitCommentDisabled(true)
   }, [comment])
+
+  if (userDataLoading) return <></>
 
   return (
     <div className='w-full sm:w-[29.375rem]' id={id}>
