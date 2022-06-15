@@ -183,6 +183,7 @@ const HomePost = ({ id, postData }) => {
         openPostModal={openPostModal}
         setOpenPostModal={setOpenPostModal}
         postId={id}
+        userData={userData}
       />
     </div>
   )

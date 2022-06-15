@@ -288,7 +288,11 @@ const Profile = () => {
 
         {/* content */}
         {activeTab === 'posts' && (
-          <ProfilePosts posts={posts} postsLoading={postsLoading} />
+          <ProfilePosts
+            posts={posts}
+            postsLoading={postsLoading}
+            currentUser={currentUser}
+          />
         )}
         {activeTab === 'saved' && <ProfileSaved />}
         {activeTab === 'tagged' && <ProfileTagged />}

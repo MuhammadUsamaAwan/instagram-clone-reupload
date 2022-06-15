@@ -4,7 +4,7 @@ import likes from '../../../assets/images/likes.png'
 import comments from '../../../assets/images/comments.png'
 import Post from '../../../components/Post'
 
-const ProfilePosts = ({ posts, postsLoading }) => {
+const ProfilePosts = ({ posts, postsLoading, currentUser }) => {
   const [openPostModal, setOpenPostModal] = useState(false)
   const [post, setPost] = useState({})
 
@@ -73,6 +73,7 @@ const ProfilePosts = ({ posts, postsLoading }) => {
         openPostModal={openPostModal}
         setOpenPostModal={setOpenPostModal}
         postId={post.id}
+        userData={currentUser}
       />
     </div>
   )

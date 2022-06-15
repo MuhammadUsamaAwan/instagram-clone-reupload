@@ -13,6 +13,7 @@ import {
   doc,
   arrayUnion,
   arrayRemove,
+  onSnapshot,
 } from 'firebase/firestore'
 import { auth, db } from '../config/firebase.config'
 import moment from 'moment'
@@ -20,11 +21,10 @@ import Comments from './Comments'
 import Likes from './Likes'
 import PostActions from './PostActions'
 
-const Post = ({ openPostModal, setOpenPostModal, postId }) => {
+const Post = ({ openPostModal, setOpenPostModal, postId, userData }) => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [postData, setPostData] = useState(null)
-  const [userData, setUserData] = useState(null)
   const [submitLikeLoading, setSubmitLikeLoading] = useState(false)
   const [comment, setComment] = useState('')
   const [submitCommentLoading, setSubmitCommentLoading] = useState(false)
@@ -33,14 +33,9 @@ const Post = ({ openPostModal, setOpenPostModal, postId }) => {
   const [openActionsModal, setOpenActionsModal] = useState(false)
 
   const getPost = async () => {
-    let docRef = doc(db, 'posts', postId)
-    let docSnap = await getDoc(docRef)
-    if (docSnap.exists()) {
-      setPostData(docSnap.data())
-      docRef = doc(db, 'users', docSnap.data().userRef)
-      docSnap = await getDoc(docRef)
-      if (docSnap.exists()) setUserData(docSnap.data())
-    }
+    onSnapshot(doc(db, 'posts', postId), doc => {
+      setPostData(doc.data())
+    })
     setLoading(false)
   }
 
@@ -52,7 +47,6 @@ const Post = ({ openPostModal, setOpenPostModal, postId }) => {
       likes: arrayUnion(auth.currentUser.uid),
     })
     setSubmitLikeLoading(false)
-    getPost()
   }
 
   const handleUnlike = async () => {
@@ -61,7 +55,6 @@ const Post = ({ openPostModal, setOpenPostModal, postId }) => {
       likes: arrayRemove(auth.currentUser.uid),
     })
     setSubmitLikeLoading(false)
-    getPost()
   }
 
   const handleComment = async e => {
@@ -75,13 +68,11 @@ const Post = ({ openPostModal, setOpenPostModal, postId }) => {
     })
     setComment('')
     setSubmitCommentLoading(false)
-    getPost()
   }
 
   useEffect(() => {
-    if (openPostModal) getPost()
-    return () => setPostData()
-  }, [openPostModal])
+    if (postId) getPost()
+  }, [onSnapshot, postId])
 
   useEffect(() => {
     if (comment) setSubmitCommentDisabled(false)
@@ -161,7 +152,7 @@ const Post = ({ openPostModal, setOpenPostModal, postId }) => {
           <div className='px-4 flex items-center justify-between py-3.5 border-t border-gainsboro'>
             <div className='flex items-center space-x-4'>
               <button disabled={submitLikeLoading} className='cursor-pointer'>
-                {postData?.likes.includes(auth.currentUser.uid) ? (
+                {postData?.likes?.includes(auth.currentUser.uid) ? (
                   <Unlike onClick={handleUnlike} />
                 ) : (
                   <Like onClick={handleLike} />

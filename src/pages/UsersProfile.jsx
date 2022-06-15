@@ -290,7 +290,7 @@ const UserProfile = () => {
 
         {/* content */}
         {activeTab === 'posts' && (
-          <UsersPost posts={posts} postsLoading={postsLoading} />
+          <UsersPost posts={posts} postsLoading={postsLoading} user={user} />
         )}
         {activeTab === 'videos' && <UsersVideos />}
         {activeTab === 'tagged' && <UsersTagged />}
