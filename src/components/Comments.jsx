@@ -33,20 +33,13 @@ const CommentsSection = ({ comments, setOpenPostModal, postId }) => {
   }
 
   const deleteComment = async () => {
+    setOpenCommentActionsModal(false)
     await updateDoc(doc(db, 'posts', postId), {
       comments: arrayRemove({
         comment: selectedComment.comment,
         userRef: auth.currentUser.uid,
       }),
     })
-    setOpenCommentActionsModal(false)
-    setCommentsData(
-      comments.filter(
-        comment =>
-          comment.comment !== selectedComment.comment ||
-          comment.userRef !== selectedComment.userRef
-      )
-    )
   }
 
   useEffect(() => {
